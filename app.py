@@ -12,24 +12,33 @@ import itertools
 import matplotlib.pyplot as plt
 # %matplotlib inline
 
+# relative paths to the folders containing images
+train_path = 'data/train'
+valid_path = 'data/valid'
+test_path = 'data/test'
+
+# prepocess images and create batches of the data
+train_batches = ImageDataGenerator().flow_from_directory(directory=train_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
+valid_batches = ImageDataGenerator().flow_from_directory(directory=valid_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
+test_batches = ImageDataGenerator().flow_from_directory(directory=test_path, target_size=(224, 224), classes=['engine','ship'], batch_size=7, shuffle=False)
+
+# load mobileNet model
 mobile = keras.applications.mobilenet.MobileNet()
 
-# prepare an image for prediction
-# @param file name as string
-def prepare_image(file):
-    img_path = './images/'
-    #resize image to fit the input of the model.
-    img = image.load_img(img_path + file, target_size=(224, 224))
-    #convert image to list/array
-    img_array = image.img_to_array(img)
-    img_array_expanded_dims = np.expand_dims(img_array, axis=0)
-    return keras.applications.mobilenet.preprocess_input(img_array_expanded_dims)
+### Modifying the mobileNet model 
+# copy mobileNet up untill the 6th to last layer.
+x = mobile.layers[-6].output
+# append a output layer
+predictions = Dense(2, activation='softmax')(x)
+# construct the new model
+model = Model(inputs=mobile.input, outputs=predictions)
+# freezing all layers accept the last 5. Only the last 5 layers will be retrained.
+# experiment with this number to try and get better results.
+for layer in model.layers[:-5]:
+    layer.trainable = False
 
-#preprocess a image and store it.
-prepped_image = prepare_image("1.jpg")
-#predict using mobileNet and store predictions
-predictions = mobile.predict(prepped_image)
-#decode predictions
-results = imagenet_utils.decode_predictions(predictions)
+### retraining the model
+# compile the model for training
+model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-print(results)
+model.fit_generator(generator=train_batches, steps_per_epoch=1, validation_data=valid_batches, validation_steps=1, epochs=30, verbose=2)
