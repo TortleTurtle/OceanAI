@@ -1,18 +1,14 @@
+#handy tools
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 import itertools
+from sklearn.metrics import confusion_matrix
+
+# Tf related imports
 import tensorflow as tf
 from tensorflow import keras as keras
 from tensorflow import saved_model
-from keras.layers.core import Dense, Activation
-from keras.optimizers import Adam
-from keras.metrics import categorical_crossentropy
-from keras.preprocessing.image import ImageDataGenerator
-from keras.preprocessing import image
-from keras.models import Model, load_model, save_model
-from keras.applications import imagenet_utils
-from sklearn.metrics import confusion_matrix
 
 # relative paths to the folders containing images
 train_path = 'data/train'
@@ -50,7 +46,7 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='ca
 model.fit_generator(generator=train_batches, steps_per_epoch=8, validation_data=valid_batches, validation_steps=2, epochs=30, verbose=2)
 
 ### Saving the model
-tf.saved_model.save(model, './savedModel')
+tf.saved_model.save(model, './savedModel/1/')
 
 ### testing the model
 # Get the labels from the test batch
