@@ -7,8 +7,9 @@ from sklearn.metrics import confusion_matrix
 
 # Tf related imports
 import tensorflow as tf
-from tensorflow import keras as keras
+from tensorflow import keras
 from tensorflow import saved_model
+from keras.preprocessing.image import ImageDataGenerator
 
 # relative paths to the folders containing images
 train_path = 'data/train'
@@ -16,10 +17,10 @@ valid_path = 'data/valid'
 test_path = 'data/test'
 
 # prepocess images and create batches of the data
-train_batches = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(directory=train_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
-valid_batches = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(
+train_batches = ImageDataGenerator().flow_from_directory(directory=train_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
+valid_batches = ImageDataGenerator().flow_from_directory(
     directory=valid_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=4)
-test_batches = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(
+test_batches = ImageDataGenerator().flow_from_directory(
     directory=test_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=20, shuffle=False)
 
 print(train_batches.class_indices)
@@ -31,9 +32,9 @@ mobile = tf.keras.applications.mobilenet.MobileNet()
 # copy mobileNet up untill the 6th to last layer.
 x = mobile.layers[-6].output
 # append a output layer
-predictions = tf.keras.layers.Dense(2, activation='softmax')(x)
+predictions = keras.layers.Dense(2, activation='softmax')(x)
 # construct the new model
-model = tf.keras.Model(inputs=mobile.input, outputs=predictions)
+model = keras.Model(inputs=mobile.input, outputs=predictions)
 # freezing all layers accept the last 6. Only the last 6 layers will be retrained.
 # experiment with this number to try and get better results.
 for layer in model.layers[:-6]:
@@ -41,12 +42,12 @@ for layer in model.layers[:-6]:
 
 ### retraining the model
 # compile the model for training
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 # train the model
 model.fit_generator(generator=train_batches, steps_per_epoch=8, validation_data=valid_batches, validation_steps=2, epochs=30, verbose=2)
 
 ### Saving the model
-tf.saved_model.save(model, './savedModel/1/')
+tf.saved_model.save(model, './savedModel/2/')
 
 ### testing the model
 # Get the labels from the test batch

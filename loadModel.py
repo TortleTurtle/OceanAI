@@ -1,17 +1,17 @@
+#handy tools
 import numpy as np
-import keras
-from keras.layers.core import Dense, Activation
-from keras.optimizers import Adam
-from keras.metrics import categorical_crossentropy
-from keras.preprocessing.image import ImageDataGenerator
-from keras.preprocessing import image
-from keras.models import Model, load_model, save_model
-from keras.applications import imagenet_utils
-from sklearn.metrics import confusion_matrix
-import itertools
+import os
 import matplotlib.pyplot as plt
+import itertools
+from sklearn.metrics import confusion_matrix
 
-model = keras.models.load_model('newModel')
+# Tf related imports
+import tensorflow as tf
+from tensorflow import keras as keras
+from tensorflow import saved_model
+from keras.preprocessing.image import ImageDataGenerator
+
+model = tf.keras.models.load_model('savedModel/1/')
 
 test_path = 'data/test'
 test_batches = ImageDataGenerator().flow_from_directory(directory=test_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=20, shuffle=False)
