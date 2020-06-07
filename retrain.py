@@ -1,5 +1,10 @@
 import numpy as np
-import keras
+import os
+import matplotlib.pyplot as plt
+import itertools
+import tensorflow as tf
+from tensorflow import keras as keras
+from tensorflow import saved_model
 from keras.layers.core import Dense, Activation
 from keras.optimizers import Adam
 from keras.metrics import categorical_crossentropy
@@ -8,8 +13,6 @@ from keras.preprocessing import image
 from keras.models import Model, load_model, save_model
 from keras.applications import imagenet_utils
 from sklearn.metrics import confusion_matrix
-import itertools
-import matplotlib.pyplot as plt
 
 # relative paths to the folders containing images
 train_path = 'data/train'
@@ -17,32 +20,37 @@ valid_path = 'data/valid'
 test_path = 'data/test'
 
 # prepocess images and create batches of the data
-train_batches = ImageDataGenerator().flow_from_directory(directory=train_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
-valid_batches = ImageDataGenerator().flow_from_directory(directory=valid_path, target_size=(224, 224), classes=['engine','ship'], batch_size=4)
-test_batches = ImageDataGenerator().flow_from_directory(directory=test_path, target_size=(224, 224), classes=['engine','ship'], batch_size=20, shuffle=False)
+train_batches = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(directory=train_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
+valid_batches = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(
+    directory=valid_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=4)
+test_batches = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(
+    directory=test_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=20, shuffle=False)
 
 print(train_batches.class_indices)
 
 # load mobileNet model
-mobile = keras.applications.mobilenet.MobileNet()
+mobile = tf.keras.applications.mobilenet.MobileNet()
 
 ### Modifying the mobileNet model 
 # copy mobileNet up untill the 6th to last layer.
 x = mobile.layers[-6].output
 # append a output layer
-predictions = Dense(2, activation='softmax')(x)
+predictions = tf.keras.layers.Dense(2, activation='softmax')(x)
 # construct the new model
-model = Model(inputs=mobile.input, outputs=predictions)
-# freezing all layers accept the last 10. Only the last 10 layers will be retrained.
+model = tf.keras.Model(inputs=mobile.input, outputs=predictions)
+# freezing all layers accept the last 6. Only the last 6 layers will be retrained.
 # experiment with this number to try and get better results.
 for layer in model.layers[:-6]:
     layer.trainable = False
 
 ### retraining the model
 # compile the model for training
-model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 # train the model
 model.fit_generator(generator=train_batches, steps_per_epoch=8, validation_data=valid_batches, validation_steps=2, epochs=30, verbose=2)
+
+### Saving the model
+tf.saved_model.save(model, './savedModel')
 
 ### testing the model
 # Get the labels from the test batch
@@ -87,6 +95,3 @@ def plot_confusion_matrix(cm, classes,
 cm = confusion_matrix(y_true=test_labels, y_pred=predictions.argmax(axis=1))
 cm_plot_labels = ['engine', 'ship']
 plot_confusion_matrix(cm, cm_plot_labels, title='Confusion Matrix')
-
-### Saving the model
-model.save('newModel')
