@@ -17,6 +17,7 @@ valid_path = 'data/valid'
 test_path = 'data/test'
 
 # prepocess images and create batches of the data
+# classes need to be in order of the folders in the train, valid or test directories.
 train_batches = ImageDataGenerator().flow_from_directory(directory=train_path, target_size=(224, 224), classes=['engine','ship'], batch_size=10)
 valid_batches = ImageDataGenerator().flow_from_directory(
     directory=valid_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=4)
@@ -47,7 +48,7 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001), loss='categ
 model.fit_generator(generator=train_batches, steps_per_epoch=8, validation_data=valid_batches, validation_steps=2, epochs=30, verbose=2)
 
 ### Saving the model
-tf.saved_model.save(model, './savedModel/2/')
+tf.saved_model.save(model, './savedModel/3/')
 
 ### testing the model
 # Get the labels from the test batch

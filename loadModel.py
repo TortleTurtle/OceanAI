@@ -11,7 +11,7 @@ from tensorflow import keras as keras
 from tensorflow import saved_model
 from keras.preprocessing.image import ImageDataGenerator
 
-model = tf.keras.models.load_model('savedModel/1/')
+model = tf.keras.models.load_model('savedModel/2/')
 
 test_path = 'data/test'
 test_batches = ImageDataGenerator().flow_from_directory(directory=test_path, target_size=(224, 224), classes=['engine', 'ship'], batch_size=20, shuffle=False)

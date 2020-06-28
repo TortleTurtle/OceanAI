@@ -15,6 +15,7 @@ kiwisolver=1.2.0=pypi_0
 lazy-object-proxy=1.4.3=py37he774522_0
 matplotlib=3.2.1=pypi_0
 mccabe=0.6.1=py37_1
+onnx=1.7.0=pypi_0
 openssl=1.1.1g=he774522_0
 pandas=1.0.4=pypi_0
 pillow=7.1.2=pypi_0
@@ -31,9 +32,11 @@ setuptools=46.4.0=py37_0
 six=1.14.0=py37_0
 sklearn=0.0=pypi_0
 sqlite=3.31.1=h2a8f88b_1
+tf2onnx=1.6.0=pypi_0
 threadpoolctl=2.1.0=pypi_0
 toml=0.10.0=py37h28b3542_0
 typed-ast=1.4.1=py37he774522_0
+typing-extensions=3.7.4.2=pypi_0
 vc=14.1=h0510ff6_4
 vs2015_runtime=14.16.27012=hf0eaf9b_2
 wheel=0.34.2=py37_0
